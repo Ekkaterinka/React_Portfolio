@@ -1,63 +1,50 @@
-import React, { Component } from 'react'
-import { useState, useEffect } from "react";
-import { ProjectList } from '../Img';
+import React from 'react'
+import { Projects } from '../Img'
+import { Toolbar } from './Toolbar';
 
-export default function Portfolio() {
-  const [filter, setFilter] = useState("all");
-  const [projects, setProjects] = useState([]);
+export default class Portfolio extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      Projects: Projects ,
+      selected: []
+    };
+  }
 
+  componentDidMount() {
+    this.setState({
+      selected: this.state.Projects
+    });
+  }
 
-  useEffect(() => {
-    setProjects(ProjectList);
-  }, []);
+  onSelectFilter = name => {
+    let selected = [];
+    if (name === "All") {
+      selected = this.state.Projects;
+    } else {
+      selected = this.state.Projects.filter(
+        Project => Project.category === name
+      );
+    }
+    this.setState({ selected });
+  };
 
-  useEffect(() => {
-    setProjects([]);
-
-    const filtered = ProjectList.map(p => ({
-      ...p,
-      filtered: p.category.includes(filter)
-    }));
-    setProjects(filtered);
-  },
-
-    [filter]);
-
-  return (
-    <>
-      <div className="portfolio__labels">
-        <a href="/#" active={filter === "all"} onClick={() => setFilter("all")}>
-          All
-        </a>
-        <a
-          href="/#"
-          active={filter === "Websites"}
-          onClick={() => setFilter("Websites")}
-        >
-          Websites
-        </a>
-        <a
-          href="/#"
-          active={filter === "Flayers"}
-          onClick={() => setFilter("Flayers")}
-        >
-          Flayers
-        </a>
-        <a
-          href="/#"
-          active={filter === "Business Cards"}
-          onClick={() => setFilter("Business Cards")}
-        >
-          Business Cards
-        </a>
+  render() {
+    const ProjectList = this.state.selected.map(Project => (
+      <img key={Project.img} src={Project.img}></img> 
+    ));
+    return (
+      <div>
+        {Toolbar.map(({ name, value }) => (
+          <button
+            key={name}
+            value={value}
+            onClick={this.onSelectFilter.bind(this, name)}>
+            {name}
+          </button>
+        ))}
+        {ProjectList}
       </div>
-      <div className="portfolio__container">
-
-        {projects.map(item =>
-          item.filtered === true ? <img src={item.img}></img> : ""
-        )}
-      </div>
-
-    </>
-  );
+    );
+  }
 }
